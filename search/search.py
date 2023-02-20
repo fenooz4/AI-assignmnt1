@@ -81,22 +81,149 @@ def depthFirstSearch(problem):
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
+"""
+    # print("Start:", problem.getStartState())
+    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    solution = []
+    visitedStates = {}
+    s = util.Stack()
+    pathToStartNode = []
+    s.push([problem.getStartState(), pathToStartNode])
+    # do everything once for the beginning
+    currentNode, actionsToNextState = s.pop()
+    print("current Node: ", currentNode)
+    print("actions: ", actionsToNextState)
+    if problem.isGoalState(currentNode):
+        solution = actionsToNextState
+    else:
+        visitedStates[currentNode] = "visited"
+        for nextNode in problem.getSuccessors(currentNode):
+            if visitedStates.get(nextNode[0]) is None:
+                temp = list(actionsToNextState)
+                temp.append(nextNode[1])
+                s.push([nextNode, temp])
+        # done once
+        while not s.isEmpty():  # actual loop
+            print("s: ", s.list)
+            currentNode, actionsToNextState = s.pop()
+            print("current Node: ", currentNode)
+            print("actions: ", actionsToNextState)
+            if problem.isGoalState(currentNode[0]):
+                solution = actionsToNextState
+                break
+            # mark as visited
+            visitedStates[currentNode[0]] = "visited"
+            print(visitedStates)
+            # implement here
+            for nextNode in problem.getSuccessors(currentNode[0]):
+                if visitedStates.get(nextNode[0]) is None:
+                    temp = list(actionsToNextState)
+                    temp.append(nextNode[1])
+                    s.push([nextNode, temp])
 
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    """
-    "*** YOUR CODE HERE ***"
+    # solution = visited nodes
+    print("Solution", solution)
+    return solution
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
+    solution = []
+    visitedStates = {}
+    s = util.Queue()
+    pathToStartNode = []
+    repetitions = 0
+    lastLen = 0
+    s.push([problem.getStartState(), pathToStartNode])
+    # do everything once for the beginning
+    currentNode, actionsToNextState = s.pop()
+    print("current Node: ", currentNode)
+    print("actions: ", actionsToNextState)
+    if problem.isGoalState(currentNode):
+        solution = actionsToNextState
+    else:
+        visitedStates[currentNode] = "visited"
+        for nextNode in problem.getSuccessors(currentNode):
+            if visitedStates.get(nextNode[0]) is None:
+                temp = list(actionsToNextState)
+                temp.append(nextNode[1])
+                s.push([nextNode, temp])
+        # done once
+        while not s.isEmpty():  # actual loop
+            currentNode, actionsToNextState = s.pop()
+
+            if problem.isGoalState(currentNode[0]):
+                solution = actionsToNextState
+                print(len(visitedStates))
+                break
+            # mark as visited
+            visitedStates[currentNode[0]] = "visited"
+            if lastLen == len(visitedStates):
+                continue
+                print("current Node: ", currentNode)
+                repetitions = repetitions+1
+
+            print(len(visitedStates))
+            lastLen = len(visitedStates)
+            # implement here
+            for nextNode in problem.getSuccessors(currentNode[0]):
+                if visitedStates.get(nextNode[0]) is None:
+                    temp = list(actionsToNextState)
+                    temp.append(nextNode[1])
+                    s.push([nextNode, temp])
+
+    # solution = visited nodes
+    print("Solution", solution)
+    print("rep: ", repetitions)
+    return solution
     util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
+    solution = []
+    visitedStates = {}
+    s = util.PriorityQueue()
+    pathToStartNode = []
+    lastLen = 0
+    totalPathCost = 0
+    s.push([problem.getStartState(), pathToStartNode], len(pathToStartNode))
+    # do everything once for the beginning
+    currentNode, actionsToNextState = s.pop()
+    if problem.isGoalState(currentNode):
+        solution = actionsToNextState
+    else:
+        visitedStates[currentNode] = "visited"
+        for nextNode in problem.getSuccessors(currentNode):
+            if visitedStates.get(nextNode[0]) is None:
+                tempCost = totalPathCost + nextNode[2]
+                temp = list(actionsToNextState)
+                temp.append(nextNode[1])
+                s.push([nextNode, temp, tempCost], tempCost)
+        # done once
+        while not s.isEmpty():  # actual loop
+            currentNode, actionsToNextState, totalPathCost = s.pop()
+            if problem.isGoalState(currentNode[0]):
+                solution = actionsToNextState
+                print(len(visitedStates))
+                break
+            # mark as visited
+            visitedStates[currentNode[0]] = "visited"
+            if lastLen == len(visitedStates):
+                continue
+                print("current Node: ", currentNode)
+                repetitions = repetitions + 1
+
+            lastLen = len(visitedStates)
+            # implement here
+            for nextNode in problem.getSuccessors(currentNode[0]):
+                if visitedStates.get(nextNode[0]) is None:
+                    tempCost = totalPathCost + nextNode[2]
+                    temp = list(actionsToNextState)
+                    temp.append(nextNode[1])
+                    s.push([nextNode, temp, tempCost], tempCost)
+
+    print("Solution", solution)
+    return solution
     util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -108,7 +235,54 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
+    solution = []
+    visitedStates = {}
+    s = util.PriorityQueue()
+    pathToStartNode = []
+    lastLen = 0
+    totalPathCost = 0
+    s.push([problem.getStartState(), pathToStartNode], heuristic(problem.getStartState(), problem)+totalPathCost)
+    # do everything once for the beginning
+    currentNode, actionsToNextState = s.pop()
+    if problem.isGoalState(currentNode):
+        solution = actionsToNextState
+    else:
+        visitedStates[currentNode] = "visited"
+        for nextNode in problem.getSuccessors(currentNode):
+            if visitedStates.get(nextNode[0]) is None:
+                tempCost1 = totalPathCost + nextNode[2]
+                estimateCost2 = tempCost1 + heuristic(nextNode[0], problem)
+                # tempCost = heuristic(nextNode[0], problem)
+                temp = list(actionsToNextState)
+                temp.append(nextNode[1])
+                s.push([nextNode, temp, tempCost1], estimateCost2)
+        # done once
+        while not s.isEmpty():  # actual loop
+            currentNode, actionsToNextState, totalPathCost = s.pop()
+            if problem.isGoalState(currentNode[0]):
+                solution = actionsToNextState
+                print(len(visitedStates))
+                break
+            # mark as visited
+            visitedStates[currentNode[0]] = "visited"
+            if lastLen == len(visitedStates):
+                continue
+                print("current Node: ", currentNode)
+                repetitions = repetitions + 1
+
+            lastLen = len(visitedStates)
+            # implement here
+            for nextNode in problem.getSuccessors(currentNode[0]):
+                if visitedStates.get(nextNode[0]) is None:
+                    tempCost1 = totalPathCost + nextNode[2]
+                    estimateCost2 = tempCost1 + heuristic(nextNode[0], problem)
+                    # tempCost = heuristic(nextNode[0], problem)
+                    temp = list(actionsToNextState)
+                    temp.append(nextNode[1])
+                    s.push([nextNode, temp, tempCost1], estimateCost2)
+
+    print("Solution", solution)
+    return solution
     util.raiseNotDefined()
 
 
